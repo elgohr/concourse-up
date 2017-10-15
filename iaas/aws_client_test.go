@@ -40,8 +40,9 @@ var _ = Describe("Client#FindLongestMatchingHostedZone", func() {
 				createFakeEnvironmentAndHandToCallback(callback)
 				return nil
 			}
+			awsClient.MockProvider(route53Fake)
 
-			zoneName, zoneID, err := (awsClient).FindLongestMatchingHostedZone("integration-test.concourse-up.engineerbetter.com", route53Fake)
+			zoneName, zoneID, err := awsClient.FindLongestMatchingHostedZone("integration-test.concourse-up.engineerbetter.com")
 
 			Expect(err).ToNot(HaveOccurred())
 			Expect(zoneName).To(Equal("concourse-up.engineerbetter.com"))
@@ -56,8 +57,9 @@ var _ = Describe("Client#FindLongestMatchingHostedZone", func() {
 
 			fakeError := errors.New("fake error")
 			route53Fake.ListHostedZonesPagesReturns(fakeError)
+			awsClient.MockProvider(route53Fake)
 
-			_, _, err = (awsClient).FindLongestMatchingHostedZone("abc.google.com", route53Fake)
+			_, _, err = awsClient.FindLongestMatchingHostedZone("abc.google.com")
 			Expect(err).To(Equal(fakeError))
 		})
 	})

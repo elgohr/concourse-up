@@ -12,13 +12,13 @@ type IClient interface {
 	DeleteVMsInVPC(vpcID string) error
 	EnsureBucketExists(name string) error
 	EnsureFileExists(bucket, path string, defaultContents []byte) ([]byte, bool, error)
-	NewRoute53Client() (Route53, error)
-	FindLongestMatchingHostedZone(subDomain string, route53Client Route53) (string, string, error)
+	FindLongestMatchingHostedZone(subDomain string) (string, string, error)
 	HasFile(bucket, path string) (bool, error)
 	LoadFile(bucket, path string) ([]byte, error)
 	WriteFile(bucket, path string, contents []byte) error
 	Region() string
 	IAAS() string
+	MockProvider(interface{})
 }
 
 // New returns a new IAAS client for a particular IAAS and region

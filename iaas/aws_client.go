@@ -14,7 +14,8 @@ import (
 
 // AWSClient is the concrete implementation of IClient on AWS
 type AWSClient struct {
-	region string
+	region  string
+	route53 Route53
 }
 
 func newAWS(region string) (IClient, error) {
@@ -26,7 +27,13 @@ func newAWS(region string) (IClient, error) {
 		return nil, errors.New("env var AWS_SECRET_ACCESS_KEY not found")
 	}
 
-	return &AWSClient{region}, nil
+	route53Client, err := newRoute53Client()
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &AWSClient{region: region, route53: route53Client}, nil
 }
 
 // Region returns the region to operate against
@@ -82,9 +89,9 @@ func (client *AWSClient) DeleteVMsInVPC(vpcID string) error {
 }
 
 // FindLongestMatchingHostedZone finds the longest hosted zone that matches the given subdomain
-func (client *AWSClient) FindLongestMatchingHostedZone(subDomain string, r53Client Route53) (string, string, error) {
+func (client *AWSClient) FindLongestMatchingHostedZone(subDomain string) (string, string, error) {
 	hostedZones := []*route53.HostedZone{}
-	err := r53Client.ListHostedZonesPages(&route53.ListHostedZonesInput{}, func(output *route53.ListHostedZonesOutput, _ bool) bool {
+	err := client.route53.ListHostedZonesPages(&route53.ListHostedZonesInput{}, func(output *route53.ListHostedZonesOutput, _ bool) bool {
 		hostedZones = append(hostedZones, output.HostedZones...)
 		return true
 	})
@@ -115,8 +122,12 @@ func (client *AWSClient) FindLongestMatchingHostedZone(subDomain string, r53Clie
 	return longestMatchingHostedZoneName, longestMatchingHostedZoneID, err
 }
 
+func (client *AWSClient) MockProvider(backendStub interface{}) {
+	client.route53 = backendStub.(Route53)
+}
+
 // NewRoute53Client returns a new Route53 client
-func (client *AWSClient) NewRoute53Client() (Route53, error) {
+func newRoute53Client() (Route53, error) {
 	session, err := session.NewSession(aws.NewConfig().WithCredentialsChainVerboseErrors(true))
 	if err != nil {
 		return nil, err
