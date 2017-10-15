@@ -16,6 +16,7 @@ const (
 
 type OpenStackClient struct {
 	AuthRef openstack.AuthRef
+	region  string
 }
 
 func NewOpenStackClient(openStackAdapter OpenStack) (*OpenStackClient, []error) {
@@ -46,7 +47,7 @@ func NewOpenStackClient(openStackAdapter OpenStack) (*OpenStackClient, []error) 
 	if len(errorList) > 0 {
 		return nil, errorList
 	}
-	client := &OpenStackClient{}
+	client := &OpenStackClient{region: ""}
 	if len(projectName) != 0 {
 		auth, err := openStackAdapter.DoAuthRequest(openstack.AuthOpts{
 			AuthUrl:     hostname,
@@ -74,5 +75,14 @@ func NewOpenStackClient(openStackAdapter OpenStack) (*OpenStackClient, []error) 
 	if len(errorList) > 0 {
 		return nil, errorList
 	}
+	client.region = hostname
 	return client, nil
+}
+
+func (o *OpenStackClient) IaaS() string {
+	return "Openstack"
+}
+
+func (o *OpenStackClient) Region() string {
+	return o.region
 }

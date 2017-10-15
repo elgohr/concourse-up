@@ -25,7 +25,7 @@ type FakeAuthRef struct{}
 func (a *FakeAuthRef) GetToken() string                           { return "" }
 func (a *FakeAuthRef) GetExpiration() time.Time                   { return time.Now() }
 func (a *FakeAuthRef) GetEndpoint(string, string) (string, error) { return "", nil }
-func (a *FakeAuthRef) GetProject() (string)                       { return "" }
+func (a *FakeAuthRef) GetProject() string                         { return "" }
 
 var _ = Describe("OpenstackClient", func() {
 
@@ -41,6 +41,33 @@ var _ = Describe("OpenstackClient", func() {
 
 	AfterEach(func() {
 		restoreEnvironmentVariables()
+	})
+
+	Describe("methods", func() {
+		var (
+			fakeAuthRef *FakeAuthRef
+			client      *OpenStackClient
+		)
+		BeforeEach(func() {
+			os.Setenv(OpenStackHostname, "https://host.name")
+			os.Setenv(OpenStackUserName, "User")
+			os.Setenv(OpenStackPassword, "Password")
+			os.Setenv(OpenStackProjectName, "ProjectName")
+			fakeAuthRef = &FakeAuthRef{}
+			openStackAdapterMock.DoAuthRequestReturns(fakeAuthRef, nil)
+			client, _ = NewOpenStackClient(openStackAdapterMock)
+
+		})
+		Describe("IaaS", func() {
+			It("returns it's name", func() {
+				Expect(client.IaaS()).To(Equal("Openstack"))
+			})
+		})
+		Describe("Region", func() {
+			It("returns the configured endpoint", func() {
+				Expect(client.Region()).To(Equal("https://host.name"))
+			})
+		})
 	})
 
 	Describe("NewOpenStackClient", func() {
@@ -76,7 +103,7 @@ var _ = Describe("OpenstackClient", func() {
 				fakeAuthRef *FakeAuthRef
 			)
 			BeforeEach(func() {
-				os.Setenv(OpenStackHostname, "Hostname")
+				os.Setenv(OpenStackHostname, "https://host.name")
 				os.Setenv(OpenStackUserName, "User")
 				os.Setenv(OpenStackPassword, "Password")
 				fakeAuthRef = &FakeAuthRef{}
@@ -89,7 +116,7 @@ var _ = Describe("OpenstackClient", func() {
 
 				Expect(openStackAdapterMock.DoAuthRequestArgsForCall(0)).To(Equal(
 					openstack.AuthOpts{
-						AuthUrl:     "Hostname",
+						AuthUrl:     "https://host.name",
 						Username:    "User",
 						Password:    "Password",
 						ProjectName: "ProjectName",
@@ -105,7 +132,7 @@ var _ = Describe("OpenstackClient", func() {
 
 				Expect(openStackAdapterMock.DoAuthRequestArgsForCall(0)).To(Equal(
 					openstack.AuthOpts{
-						AuthUrl:   "Hostname",
+						AuthUrl:   "https://host.name",
 						Username:  "User",
 						Password:  "Password",
 						ProjectId: "ProjectId",
