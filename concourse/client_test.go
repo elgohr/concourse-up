@@ -15,7 +15,6 @@ import (
 	"github.com/EngineerBetter/concourse-up/director"
 	"github.com/EngineerBetter/concourse-up/fly"
 	"github.com/EngineerBetter/concourse-up/fly/flyfakes"
-	"github.com/EngineerBetter/concourse-up/iaas"
 	"github.com/EngineerBetter/concourse-up/iaas/iaasfakes"
 	"github.com/EngineerBetter/concourse-up/terraform"
 	"github.com/EngineerBetter/concourse-up/terraform/terraformfakes"
@@ -433,7 +432,7 @@ sWbB3FCIsym1FXB+eRnVF3Y15RwBWWKA5RfwUNpEXFxtv24tQ8jrdA==
 
 func mockAwsClient(actions *[]string) *iaasfakes.FakeIClient {
 	awsClient := new(iaasfakes.FakeIClient)
-	awsClient.FindLongestMatchingHostedZoneStub = func(subDomain string, r53Client iaas.Route53) (string, string, error) {
+	awsClient.FindLongestMatchingHostedZoneStub = func(subDomain string) (string, string, error) {
 		if subDomain == "ci.google.com" {
 			return "google.com", "ABC123", nil
 		}
