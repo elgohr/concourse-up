@@ -35,7 +35,6 @@ const (
 	awsErrCodeNotFound = "NotFound"
 )
 
-// DeleteVersionedBucket deletes and empties a versioned bucket
 func (client *AWSClient) DeleteVersionedBucket(name string) error {
 	sess, err := session.NewSession(&aws.Config{
 		Region:      aws.String(client.region),
@@ -75,7 +74,6 @@ func (client *AWSClient) DeleteVersionedBucket(name string) error {
 	return err
 }
 
-// EnsureBucketExists checks if the named bucket exists and creates it if it doesn't
 func (client *AWSClient) EnsureBucketExists(name string) error {
 	sess, err := session.NewSession(aws.NewConfig().WithCredentialsChainVerboseErrors(true))
 	if err != nil {
@@ -109,7 +107,6 @@ func (client *AWSClient) EnsureBucketExists(name string) error {
 	return err
 }
 
-// WriteFile writes the specified S3 object
 func (client *AWSClient) WriteFile(bucket, path string, contents []byte) error {
 	sess, err := session.NewSession(aws.NewConfig().WithCredentialsChainVerboseErrors(true))
 	if err != nil {
@@ -125,7 +122,6 @@ func (client *AWSClient) WriteFile(bucket, path string, contents []byte) error {
 	return err
 }
 
-// HasFile returns true if the specified S3 object exists
 func (client *AWSClient) HasFile(bucket, path string) (bool, error) {
 	sess, err := session.NewSession(aws.NewConfig().WithCredentialsChainVerboseErrors(true))
 	if err != nil {
@@ -145,8 +141,6 @@ func (client *AWSClient) HasFile(bucket, path string) (bool, error) {
 	return true, nil
 }
 
-// EnsureFileExists checks for the named file in S3 and creates it if it doesn't
-// Second argument is true if new file was created
 func (client *AWSClient) EnsureFileExists(bucket, path string, defaultContents []byte) ([]byte, bool, error) {
 	sess, err := session.NewSession(aws.NewConfig().WithCredentialsChainVerboseErrors(true))
 	if err != nil {
@@ -185,7 +179,6 @@ func (client *AWSClient) EnsureFileExists(bucket, path string, defaultContents [
 	return defaultContents, true, nil
 }
 
-// LoadFile loads a file from S3
 func (client *AWSClient) LoadFile(bucket, path string) ([]byte, error) {
 	sess, err := session.NewSession(aws.NewConfig().WithCredentialsChainVerboseErrors(true))
 	if err != nil {
@@ -202,7 +195,6 @@ func (client *AWSClient) LoadFile(bucket, path string) ([]byte, error) {
 	return ioutil.ReadAll(output.Body)
 }
 
-// DeleteFile deletes a file from S3
 func (client *AWSClient) DeleteFile(bucket, path string) error {
 	sess, err := session.NewSession(aws.NewConfig().WithCredentialsChainVerboseErrors(true))
 	if err != nil {

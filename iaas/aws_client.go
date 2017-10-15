@@ -13,6 +13,7 @@ import (
 )
 
 // AWSClient is the concrete implementation of IClient on AWS
+// using Route53 & S3
 type AWSClient struct {
 	region  string
 	route53 Route53
@@ -36,17 +37,14 @@ func newAWS(region string) (IClient, error) {
 	return &AWSClient{region: region, route53: route53Client}, nil
 }
 
-// Region returns the region to operate against
 func (client *AWSClient) Region() string {
 	return client.region
 }
 
-// IAAS returns the iaas to operate against
-func (client *AWSClient) IAAS() string {
+func (client *AWSClient) IaaS() string {
 	return "AWS"
 }
 
-// DeleteVMsInVPC deletes all the VMs in the given VPC
 func (client *AWSClient) DeleteVMsInVPC(vpcID string) error {
 	sess, err := session.NewSession(aws.NewConfig().WithCredentialsChainVerboseErrors(true))
 	if err != nil {
@@ -88,7 +86,6 @@ func (client *AWSClient) DeleteVMsInVPC(vpcID string) error {
 	return err
 }
 
-// FindLongestMatchingHostedZone finds the longest hosted zone that matches the given subdomain
 func (client *AWSClient) FindLongestMatchingHostedZone(subDomain string) (string, string, error) {
 	hostedZones := []*route53.HostedZone{}
 	err := client.route53.ListHostedZonesPages(&route53.ListHostedZonesInput{}, func(output *route53.ListHostedZonesOutput, _ bool) bool {

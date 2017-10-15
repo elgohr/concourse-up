@@ -8,17 +8,54 @@ import (
 )
 
 type FakeIClient struct {
-	DeleteFileStub        func(bucket, path string) error
-	deleteFileMutex       sync.RWMutex
-	deleteFileArgsForCall []struct {
-		bucket string
-		path   string
+	IaaSStub        func() string
+	iaaSMutex       sync.RWMutex
+	iaaSArgsForCall []struct{}
+	iaaSReturns     struct {
+		result1 string
 	}
-	deleteFileReturns struct {
+	iaaSReturnsOnCall map[int]struct {
+		result1 string
+	}
+	RegionStub        func() string
+	regionMutex       sync.RWMutex
+	regionArgsForCall []struct{}
+	regionReturns     struct {
+		result1 string
+	}
+	regionReturnsOnCall map[int]struct {
+		result1 string
+	}
+	DeleteVMsInVPCStub        func(vpcID string) error
+	deleteVMsInVPCMutex       sync.RWMutex
+	deleteVMsInVPCArgsForCall []struct {
+		vpcID string
+	}
+	deleteVMsInVPCReturns struct {
 		result1 error
 	}
-	deleteFileReturnsOnCall map[int]struct {
+	deleteVMsInVPCReturnsOnCall map[int]struct {
 		result1 error
+	}
+	FindLongestMatchingHostedZoneStub        func(subDomain string) (string, string, error)
+	findLongestMatchingHostedZoneMutex       sync.RWMutex
+	findLongestMatchingHostedZoneArgsForCall []struct {
+		subDomain string
+	}
+	findLongestMatchingHostedZoneReturns struct {
+		result1 string
+		result2 string
+		result3 error
+	}
+	findLongestMatchingHostedZoneReturnsOnCall map[int]struct {
+		result1 string
+		result2 string
+		result3 error
+	}
+	MockProviderStub        func(interface{})
+	mockProviderMutex       sync.RWMutex
+	mockProviderArgsForCall []struct {
+		arg1 interface{}
 	}
 	DeleteVersionedBucketStub        func(name string) error
 	deleteVersionedBucketMutex       sync.RWMutex
@@ -31,15 +68,16 @@ type FakeIClient struct {
 	deleteVersionedBucketReturnsOnCall map[int]struct {
 		result1 error
 	}
-	DeleteVMsInVPCStub        func(vpcID string) error
-	deleteVMsInVPCMutex       sync.RWMutex
-	deleteVMsInVPCArgsForCall []struct {
-		vpcID string
+	DeleteFileStub        func(bucket, path string) error
+	deleteFileMutex       sync.RWMutex
+	deleteFileArgsForCall []struct {
+		bucket string
+		path   string
 	}
-	deleteVMsInVPCReturns struct {
+	deleteFileReturns struct {
 		result1 error
 	}
-	deleteVMsInVPCReturnsOnCall map[int]struct {
+	deleteFileReturnsOnCall map[int]struct {
 		result1 error
 	}
 	EnsureBucketExistsStub        func(name string) error
@@ -68,21 +106,6 @@ type FakeIClient struct {
 	ensureFileExistsReturnsOnCall map[int]struct {
 		result1 []byte
 		result2 bool
-		result3 error
-	}
-	FindLongestMatchingHostedZoneStub        func(subDomain string) (string, string, error)
-	findLongestMatchingHostedZoneMutex       sync.RWMutex
-	findLongestMatchingHostedZoneArgsForCall []struct {
-		subDomain string
-	}
-	findLongestMatchingHostedZoneReturns struct {
-		result1 string
-		result2 string
-		result3 error
-	}
-	findLongestMatchingHostedZoneReturnsOnCall map[int]struct {
-		result1 string
-		result2 string
 		result3 error
 	}
 	HasFileStub        func(bucket, path string) (bool, error)
@@ -126,80 +149,214 @@ type FakeIClient struct {
 	writeFileReturnsOnCall map[int]struct {
 		result1 error
 	}
-	RegionStub        func() string
-	regionMutex       sync.RWMutex
-	regionArgsForCall []struct{}
-	regionReturns     struct {
-		result1 string
-	}
-	regionReturnsOnCall map[int]struct {
-		result1 string
-	}
-	IAASStub        func() string
-	iAASMutex       sync.RWMutex
-	iAASArgsForCall []struct{}
-	iAASReturns     struct {
-		result1 string
-	}
-	iAASReturnsOnCall map[int]struct {
-		result1 string
-	}
-	MockProviderStub        func(interface{})
-	mockProviderMutex       sync.RWMutex
-	mockProviderArgsForCall []struct {
-		arg1 interface{}
-	}
 	invocations      map[string][][]interface{}
 	invocationsMutex sync.RWMutex
 }
 
-func (fake *FakeIClient) DeleteFile(bucket string, path string) error {
-	fake.deleteFileMutex.Lock()
-	ret, specificReturn := fake.deleteFileReturnsOnCall[len(fake.deleteFileArgsForCall)]
-	fake.deleteFileArgsForCall = append(fake.deleteFileArgsForCall, struct {
-		bucket string
-		path   string
-	}{bucket, path})
-	fake.recordInvocation("DeleteFile", []interface{}{bucket, path})
-	fake.deleteFileMutex.Unlock()
-	if fake.DeleteFileStub != nil {
-		return fake.DeleteFileStub(bucket, path)
+func (fake *FakeIClient) IaaS() string {
+	fake.iaaSMutex.Lock()
+	ret, specificReturn := fake.iaaSReturnsOnCall[len(fake.iaaSArgsForCall)]
+	fake.iaaSArgsForCall = append(fake.iaaSArgsForCall, struct{}{})
+	fake.recordInvocation("IaaS", []interface{}{})
+	fake.iaaSMutex.Unlock()
+	if fake.IaaSStub != nil {
+		return fake.IaaSStub()
 	}
 	if specificReturn {
 		return ret.result1
 	}
-	return fake.deleteFileReturns.result1
+	return fake.iaaSReturns.result1
 }
 
-func (fake *FakeIClient) DeleteFileCallCount() int {
-	fake.deleteFileMutex.RLock()
-	defer fake.deleteFileMutex.RUnlock()
-	return len(fake.deleteFileArgsForCall)
+func (fake *FakeIClient) IaaSCallCount() int {
+	fake.iaaSMutex.RLock()
+	defer fake.iaaSMutex.RUnlock()
+	return len(fake.iaaSArgsForCall)
 }
 
-func (fake *FakeIClient) DeleteFileArgsForCall(i int) (string, string) {
-	fake.deleteFileMutex.RLock()
-	defer fake.deleteFileMutex.RUnlock()
-	return fake.deleteFileArgsForCall[i].bucket, fake.deleteFileArgsForCall[i].path
+func (fake *FakeIClient) IaaSReturns(result1 string) {
+	fake.IaaSStub = nil
+	fake.iaaSReturns = struct {
+		result1 string
+	}{result1}
 }
 
-func (fake *FakeIClient) DeleteFileReturns(result1 error) {
-	fake.DeleteFileStub = nil
-	fake.deleteFileReturns = struct {
+func (fake *FakeIClient) IaaSReturnsOnCall(i int, result1 string) {
+	fake.IaaSStub = nil
+	if fake.iaaSReturnsOnCall == nil {
+		fake.iaaSReturnsOnCall = make(map[int]struct {
+			result1 string
+		})
+	}
+	fake.iaaSReturnsOnCall[i] = struct {
+		result1 string
+	}{result1}
+}
+
+func (fake *FakeIClient) Region() string {
+	fake.regionMutex.Lock()
+	ret, specificReturn := fake.regionReturnsOnCall[len(fake.regionArgsForCall)]
+	fake.regionArgsForCall = append(fake.regionArgsForCall, struct{}{})
+	fake.recordInvocation("Region", []interface{}{})
+	fake.regionMutex.Unlock()
+	if fake.RegionStub != nil {
+		return fake.RegionStub()
+	}
+	if specificReturn {
+		return ret.result1
+	}
+	return fake.regionReturns.result1
+}
+
+func (fake *FakeIClient) RegionCallCount() int {
+	fake.regionMutex.RLock()
+	defer fake.regionMutex.RUnlock()
+	return len(fake.regionArgsForCall)
+}
+
+func (fake *FakeIClient) RegionReturns(result1 string) {
+	fake.RegionStub = nil
+	fake.regionReturns = struct {
+		result1 string
+	}{result1}
+}
+
+func (fake *FakeIClient) RegionReturnsOnCall(i int, result1 string) {
+	fake.RegionStub = nil
+	if fake.regionReturnsOnCall == nil {
+		fake.regionReturnsOnCall = make(map[int]struct {
+			result1 string
+		})
+	}
+	fake.regionReturnsOnCall[i] = struct {
+		result1 string
+	}{result1}
+}
+
+func (fake *FakeIClient) DeleteVMsInVPC(vpcID string) error {
+	fake.deleteVMsInVPCMutex.Lock()
+	ret, specificReturn := fake.deleteVMsInVPCReturnsOnCall[len(fake.deleteVMsInVPCArgsForCall)]
+	fake.deleteVMsInVPCArgsForCall = append(fake.deleteVMsInVPCArgsForCall, struct {
+		vpcID string
+	}{vpcID})
+	fake.recordInvocation("DeleteVMsInVPC", []interface{}{vpcID})
+	fake.deleteVMsInVPCMutex.Unlock()
+	if fake.DeleteVMsInVPCStub != nil {
+		return fake.DeleteVMsInVPCStub(vpcID)
+	}
+	if specificReturn {
+		return ret.result1
+	}
+	return fake.deleteVMsInVPCReturns.result1
+}
+
+func (fake *FakeIClient) DeleteVMsInVPCCallCount() int {
+	fake.deleteVMsInVPCMutex.RLock()
+	defer fake.deleteVMsInVPCMutex.RUnlock()
+	return len(fake.deleteVMsInVPCArgsForCall)
+}
+
+func (fake *FakeIClient) DeleteVMsInVPCArgsForCall(i int) string {
+	fake.deleteVMsInVPCMutex.RLock()
+	defer fake.deleteVMsInVPCMutex.RUnlock()
+	return fake.deleteVMsInVPCArgsForCall[i].vpcID
+}
+
+func (fake *FakeIClient) DeleteVMsInVPCReturns(result1 error) {
+	fake.DeleteVMsInVPCStub = nil
+	fake.deleteVMsInVPCReturns = struct {
 		result1 error
 	}{result1}
 }
 
-func (fake *FakeIClient) DeleteFileReturnsOnCall(i int, result1 error) {
-	fake.DeleteFileStub = nil
-	if fake.deleteFileReturnsOnCall == nil {
-		fake.deleteFileReturnsOnCall = make(map[int]struct {
+func (fake *FakeIClient) DeleteVMsInVPCReturnsOnCall(i int, result1 error) {
+	fake.DeleteVMsInVPCStub = nil
+	if fake.deleteVMsInVPCReturnsOnCall == nil {
+		fake.deleteVMsInVPCReturnsOnCall = make(map[int]struct {
 			result1 error
 		})
 	}
-	fake.deleteFileReturnsOnCall[i] = struct {
+	fake.deleteVMsInVPCReturnsOnCall[i] = struct {
 		result1 error
 	}{result1}
+}
+
+func (fake *FakeIClient) FindLongestMatchingHostedZone(subDomain string) (string, string, error) {
+	fake.findLongestMatchingHostedZoneMutex.Lock()
+	ret, specificReturn := fake.findLongestMatchingHostedZoneReturnsOnCall[len(fake.findLongestMatchingHostedZoneArgsForCall)]
+	fake.findLongestMatchingHostedZoneArgsForCall = append(fake.findLongestMatchingHostedZoneArgsForCall, struct {
+		subDomain string
+	}{subDomain})
+	fake.recordInvocation("FindLongestMatchingHostedZone", []interface{}{subDomain})
+	fake.findLongestMatchingHostedZoneMutex.Unlock()
+	if fake.FindLongestMatchingHostedZoneStub != nil {
+		return fake.FindLongestMatchingHostedZoneStub(subDomain)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2, ret.result3
+	}
+	return fake.findLongestMatchingHostedZoneReturns.result1, fake.findLongestMatchingHostedZoneReturns.result2, fake.findLongestMatchingHostedZoneReturns.result3
+}
+
+func (fake *FakeIClient) FindLongestMatchingHostedZoneCallCount() int {
+	fake.findLongestMatchingHostedZoneMutex.RLock()
+	defer fake.findLongestMatchingHostedZoneMutex.RUnlock()
+	return len(fake.findLongestMatchingHostedZoneArgsForCall)
+}
+
+func (fake *FakeIClient) FindLongestMatchingHostedZoneArgsForCall(i int) string {
+	fake.findLongestMatchingHostedZoneMutex.RLock()
+	defer fake.findLongestMatchingHostedZoneMutex.RUnlock()
+	return fake.findLongestMatchingHostedZoneArgsForCall[i].subDomain
+}
+
+func (fake *FakeIClient) FindLongestMatchingHostedZoneReturns(result1 string, result2 string, result3 error) {
+	fake.FindLongestMatchingHostedZoneStub = nil
+	fake.findLongestMatchingHostedZoneReturns = struct {
+		result1 string
+		result2 string
+		result3 error
+	}{result1, result2, result3}
+}
+
+func (fake *FakeIClient) FindLongestMatchingHostedZoneReturnsOnCall(i int, result1 string, result2 string, result3 error) {
+	fake.FindLongestMatchingHostedZoneStub = nil
+	if fake.findLongestMatchingHostedZoneReturnsOnCall == nil {
+		fake.findLongestMatchingHostedZoneReturnsOnCall = make(map[int]struct {
+			result1 string
+			result2 string
+			result3 error
+		})
+	}
+	fake.findLongestMatchingHostedZoneReturnsOnCall[i] = struct {
+		result1 string
+		result2 string
+		result3 error
+	}{result1, result2, result3}
+}
+
+func (fake *FakeIClient) MockProvider(arg1 interface{}) {
+	fake.mockProviderMutex.Lock()
+	fake.mockProviderArgsForCall = append(fake.mockProviderArgsForCall, struct {
+		arg1 interface{}
+	}{arg1})
+	fake.recordInvocation("MockProvider", []interface{}{arg1})
+	fake.mockProviderMutex.Unlock()
+	if fake.MockProviderStub != nil {
+		fake.MockProviderStub(arg1)
+	}
+}
+
+func (fake *FakeIClient) MockProviderCallCount() int {
+	fake.mockProviderMutex.RLock()
+	defer fake.mockProviderMutex.RUnlock()
+	return len(fake.mockProviderArgsForCall)
+}
+
+func (fake *FakeIClient) MockProviderArgsForCall(i int) interface{} {
+	fake.mockProviderMutex.RLock()
+	defer fake.mockProviderMutex.RUnlock()
+	return fake.mockProviderArgsForCall[i].arg1
 }
 
 func (fake *FakeIClient) DeleteVersionedBucket(name string) error {
@@ -250,50 +407,51 @@ func (fake *FakeIClient) DeleteVersionedBucketReturnsOnCall(i int, result1 error
 	}{result1}
 }
 
-func (fake *FakeIClient) DeleteVMsInVPC(vpcID string) error {
-	fake.deleteVMsInVPCMutex.Lock()
-	ret, specificReturn := fake.deleteVMsInVPCReturnsOnCall[len(fake.deleteVMsInVPCArgsForCall)]
-	fake.deleteVMsInVPCArgsForCall = append(fake.deleteVMsInVPCArgsForCall, struct {
-		vpcID string
-	}{vpcID})
-	fake.recordInvocation("DeleteVMsInVPC", []interface{}{vpcID})
-	fake.deleteVMsInVPCMutex.Unlock()
-	if fake.DeleteVMsInVPCStub != nil {
-		return fake.DeleteVMsInVPCStub(vpcID)
+func (fake *FakeIClient) DeleteFile(bucket string, path string) error {
+	fake.deleteFileMutex.Lock()
+	ret, specificReturn := fake.deleteFileReturnsOnCall[len(fake.deleteFileArgsForCall)]
+	fake.deleteFileArgsForCall = append(fake.deleteFileArgsForCall, struct {
+		bucket string
+		path   string
+	}{bucket, path})
+	fake.recordInvocation("DeleteFile", []interface{}{bucket, path})
+	fake.deleteFileMutex.Unlock()
+	if fake.DeleteFileStub != nil {
+		return fake.DeleteFileStub(bucket, path)
 	}
 	if specificReturn {
 		return ret.result1
 	}
-	return fake.deleteVMsInVPCReturns.result1
+	return fake.deleteFileReturns.result1
 }
 
-func (fake *FakeIClient) DeleteVMsInVPCCallCount() int {
-	fake.deleteVMsInVPCMutex.RLock()
-	defer fake.deleteVMsInVPCMutex.RUnlock()
-	return len(fake.deleteVMsInVPCArgsForCall)
+func (fake *FakeIClient) DeleteFileCallCount() int {
+	fake.deleteFileMutex.RLock()
+	defer fake.deleteFileMutex.RUnlock()
+	return len(fake.deleteFileArgsForCall)
 }
 
-func (fake *FakeIClient) DeleteVMsInVPCArgsForCall(i int) string {
-	fake.deleteVMsInVPCMutex.RLock()
-	defer fake.deleteVMsInVPCMutex.RUnlock()
-	return fake.deleteVMsInVPCArgsForCall[i].vpcID
+func (fake *FakeIClient) DeleteFileArgsForCall(i int) (string, string) {
+	fake.deleteFileMutex.RLock()
+	defer fake.deleteFileMutex.RUnlock()
+	return fake.deleteFileArgsForCall[i].bucket, fake.deleteFileArgsForCall[i].path
 }
 
-func (fake *FakeIClient) DeleteVMsInVPCReturns(result1 error) {
-	fake.DeleteVMsInVPCStub = nil
-	fake.deleteVMsInVPCReturns = struct {
+func (fake *FakeIClient) DeleteFileReturns(result1 error) {
+	fake.DeleteFileStub = nil
+	fake.deleteFileReturns = struct {
 		result1 error
 	}{result1}
 }
 
-func (fake *FakeIClient) DeleteVMsInVPCReturnsOnCall(i int, result1 error) {
-	fake.DeleteVMsInVPCStub = nil
-	if fake.deleteVMsInVPCReturnsOnCall == nil {
-		fake.deleteVMsInVPCReturnsOnCall = make(map[int]struct {
+func (fake *FakeIClient) DeleteFileReturnsOnCall(i int, result1 error) {
+	fake.DeleteFileStub = nil
+	if fake.deleteFileReturnsOnCall == nil {
+		fake.deleteFileReturnsOnCall = make(map[int]struct {
 			result1 error
 		})
 	}
-	fake.deleteVMsInVPCReturnsOnCall[i] = struct {
+	fake.deleteFileReturnsOnCall[i] = struct {
 		result1 error
 	}{result1}
 }
@@ -403,60 +561,6 @@ func (fake *FakeIClient) EnsureFileExistsReturnsOnCall(i int, result1 []byte, re
 	fake.ensureFileExistsReturnsOnCall[i] = struct {
 		result1 []byte
 		result2 bool
-		result3 error
-	}{result1, result2, result3}
-}
-
-func (fake *FakeIClient) FindLongestMatchingHostedZone(subDomain string) (string, string, error) {
-	fake.findLongestMatchingHostedZoneMutex.Lock()
-	ret, specificReturn := fake.findLongestMatchingHostedZoneReturnsOnCall[len(fake.findLongestMatchingHostedZoneArgsForCall)]
-	fake.findLongestMatchingHostedZoneArgsForCall = append(fake.findLongestMatchingHostedZoneArgsForCall, struct {
-		subDomain string
-	}{subDomain})
-	fake.recordInvocation("FindLongestMatchingHostedZone", []interface{}{subDomain})
-	fake.findLongestMatchingHostedZoneMutex.Unlock()
-	if fake.FindLongestMatchingHostedZoneStub != nil {
-		return fake.FindLongestMatchingHostedZoneStub(subDomain)
-	}
-	if specificReturn {
-		return ret.result1, ret.result2, ret.result3
-	}
-	return fake.findLongestMatchingHostedZoneReturns.result1, fake.findLongestMatchingHostedZoneReturns.result2, fake.findLongestMatchingHostedZoneReturns.result3
-}
-
-func (fake *FakeIClient) FindLongestMatchingHostedZoneCallCount() int {
-	fake.findLongestMatchingHostedZoneMutex.RLock()
-	defer fake.findLongestMatchingHostedZoneMutex.RUnlock()
-	return len(fake.findLongestMatchingHostedZoneArgsForCall)
-}
-
-func (fake *FakeIClient) FindLongestMatchingHostedZoneArgsForCall(i int) string {
-	fake.findLongestMatchingHostedZoneMutex.RLock()
-	defer fake.findLongestMatchingHostedZoneMutex.RUnlock()
-	return fake.findLongestMatchingHostedZoneArgsForCall[i].subDomain
-}
-
-func (fake *FakeIClient) FindLongestMatchingHostedZoneReturns(result1 string, result2 string, result3 error) {
-	fake.FindLongestMatchingHostedZoneStub = nil
-	fake.findLongestMatchingHostedZoneReturns = struct {
-		result1 string
-		result2 string
-		result3 error
-	}{result1, result2, result3}
-}
-
-func (fake *FakeIClient) FindLongestMatchingHostedZoneReturnsOnCall(i int, result1 string, result2 string, result3 error) {
-	fake.FindLongestMatchingHostedZoneStub = nil
-	if fake.findLongestMatchingHostedZoneReturnsOnCall == nil {
-		fake.findLongestMatchingHostedZoneReturnsOnCall = make(map[int]struct {
-			result1 string
-			result2 string
-			result3 error
-		})
-	}
-	fake.findLongestMatchingHostedZoneReturnsOnCall[i] = struct {
-		result1 string
-		result2 string
 		result3 error
 	}{result1, result2, result3}
 }
@@ -620,137 +724,33 @@ func (fake *FakeIClient) WriteFileReturnsOnCall(i int, result1 error) {
 	}{result1}
 }
 
-func (fake *FakeIClient) Region() string {
-	fake.regionMutex.Lock()
-	ret, specificReturn := fake.regionReturnsOnCall[len(fake.regionArgsForCall)]
-	fake.regionArgsForCall = append(fake.regionArgsForCall, struct{}{})
-	fake.recordInvocation("Region", []interface{}{})
-	fake.regionMutex.Unlock()
-	if fake.RegionStub != nil {
-		return fake.RegionStub()
-	}
-	if specificReturn {
-		return ret.result1
-	}
-	return fake.regionReturns.result1
-}
-
-func (fake *FakeIClient) RegionCallCount() int {
-	fake.regionMutex.RLock()
-	defer fake.regionMutex.RUnlock()
-	return len(fake.regionArgsForCall)
-}
-
-func (fake *FakeIClient) RegionReturns(result1 string) {
-	fake.RegionStub = nil
-	fake.regionReturns = struct {
-		result1 string
-	}{result1}
-}
-
-func (fake *FakeIClient) RegionReturnsOnCall(i int, result1 string) {
-	fake.RegionStub = nil
-	if fake.regionReturnsOnCall == nil {
-		fake.regionReturnsOnCall = make(map[int]struct {
-			result1 string
-		})
-	}
-	fake.regionReturnsOnCall[i] = struct {
-		result1 string
-	}{result1}
-}
-
-func (fake *FakeIClient) IAAS() string {
-	fake.iAASMutex.Lock()
-	ret, specificReturn := fake.iAASReturnsOnCall[len(fake.iAASArgsForCall)]
-	fake.iAASArgsForCall = append(fake.iAASArgsForCall, struct{}{})
-	fake.recordInvocation("IAAS", []interface{}{})
-	fake.iAASMutex.Unlock()
-	if fake.IAASStub != nil {
-		return fake.IAASStub()
-	}
-	if specificReturn {
-		return ret.result1
-	}
-	return fake.iAASReturns.result1
-}
-
-func (fake *FakeIClient) IAASCallCount() int {
-	fake.iAASMutex.RLock()
-	defer fake.iAASMutex.RUnlock()
-	return len(fake.iAASArgsForCall)
-}
-
-func (fake *FakeIClient) IAASReturns(result1 string) {
-	fake.IAASStub = nil
-	fake.iAASReturns = struct {
-		result1 string
-	}{result1}
-}
-
-func (fake *FakeIClient) IAASReturnsOnCall(i int, result1 string) {
-	fake.IAASStub = nil
-	if fake.iAASReturnsOnCall == nil {
-		fake.iAASReturnsOnCall = make(map[int]struct {
-			result1 string
-		})
-	}
-	fake.iAASReturnsOnCall[i] = struct {
-		result1 string
-	}{result1}
-}
-
-func (fake *FakeIClient) MockProvider(arg1 interface{}) {
-	fake.mockProviderMutex.Lock()
-	fake.mockProviderArgsForCall = append(fake.mockProviderArgsForCall, struct {
-		arg1 interface{}
-	}{arg1})
-	fake.recordInvocation("MockProvider", []interface{}{arg1})
-	fake.mockProviderMutex.Unlock()
-	if fake.MockProviderStub != nil {
-		fake.MockProviderStub(arg1)
-	}
-}
-
-func (fake *FakeIClient) MockProviderCallCount() int {
-	fake.mockProviderMutex.RLock()
-	defer fake.mockProviderMutex.RUnlock()
-	return len(fake.mockProviderArgsForCall)
-}
-
-func (fake *FakeIClient) MockProviderArgsForCall(i int) interface{} {
-	fake.mockProviderMutex.RLock()
-	defer fake.mockProviderMutex.RUnlock()
-	return fake.mockProviderArgsForCall[i].arg1
-}
-
 func (fake *FakeIClient) Invocations() map[string][][]interface{} {
 	fake.invocationsMutex.RLock()
 	defer fake.invocationsMutex.RUnlock()
-	fake.deleteFileMutex.RLock()
-	defer fake.deleteFileMutex.RUnlock()
-	fake.deleteVersionedBucketMutex.RLock()
-	defer fake.deleteVersionedBucketMutex.RUnlock()
+	fake.iaaSMutex.RLock()
+	defer fake.iaaSMutex.RUnlock()
+	fake.regionMutex.RLock()
+	defer fake.regionMutex.RUnlock()
 	fake.deleteVMsInVPCMutex.RLock()
 	defer fake.deleteVMsInVPCMutex.RUnlock()
+	fake.findLongestMatchingHostedZoneMutex.RLock()
+	defer fake.findLongestMatchingHostedZoneMutex.RUnlock()
+	fake.mockProviderMutex.RLock()
+	defer fake.mockProviderMutex.RUnlock()
+	fake.deleteVersionedBucketMutex.RLock()
+	defer fake.deleteVersionedBucketMutex.RUnlock()
+	fake.deleteFileMutex.RLock()
+	defer fake.deleteFileMutex.RUnlock()
 	fake.ensureBucketExistsMutex.RLock()
 	defer fake.ensureBucketExistsMutex.RUnlock()
 	fake.ensureFileExistsMutex.RLock()
 	defer fake.ensureFileExistsMutex.RUnlock()
-	fake.findLongestMatchingHostedZoneMutex.RLock()
-	defer fake.findLongestMatchingHostedZoneMutex.RUnlock()
 	fake.hasFileMutex.RLock()
 	defer fake.hasFileMutex.RUnlock()
 	fake.loadFileMutex.RLock()
 	defer fake.loadFileMutex.RUnlock()
 	fake.writeFileMutex.RLock()
 	defer fake.writeFileMutex.RUnlock()
-	fake.regionMutex.RLock()
-	defer fake.regionMutex.RUnlock()
-	fake.iAASMutex.RLock()
-	defer fake.iAASMutex.RUnlock()
-	fake.mockProviderMutex.RLock()
-	defer fake.mockProviderMutex.RUnlock()
 	copiedInvocations := map[string][][]interface{}{}
 	for key, value := range fake.invocations {
 		copiedInvocations[key] = value
