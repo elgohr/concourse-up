@@ -1,10 +1,13 @@
 package iaas
 
-import "git.openstack.org/openstack/golang-client/openstack"
+import (
+	"github.com/rackspace/gophercloud"
+	"github.com/rackspace/gophercloud/openstack"
+)
 
 //go:generate counterfeiter . OpenStack
 type OpenStack interface {
-	DoAuthRequest(authopts openstack.AuthOpts) (openstack.AuthRef, error)
+	AuthenticatedClient(authopts gophercloud.AuthOptions) (*gophercloud.ProviderClient, error)
 }
 
 // This struct only exists to wrap static method-calls from OpenStack-Api
@@ -12,6 +15,6 @@ type OpenStack interface {
 type OpenStackAdapter struct {
 }
 
-func (oa *OpenStackAdapter) DoAuthRequest(authopts openstack.AuthOpts) (openstack.AuthRef, error) {
-	return openstack.DoAuthRequest(authopts)
+func (oa *OpenStackAdapter) AuthenticatedClient(authopts gophercloud.AuthOptions) (*gophercloud.ProviderClient, error) {
+	return openstack.AuthenticatedClient(authopts)
 }

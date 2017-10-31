@@ -2,7 +2,7 @@ package iaas
 
 import (
 	"errors"
-	"git.openstack.org/openstack/golang-client/openstack"
+	"github.com/rackspace/gophercloud"
 	"os"
 )
 
@@ -15,8 +15,8 @@ const (
 )
 
 type OpenStackClient struct {
-	AuthRef openstack.AuthRef
-	region  string
+	ProviderClient *gophercloud.ProviderClient
+	region         string
 }
 
 func NewOpenStackClient(openStackAdapter OpenStack) (*OpenStackClient, []error) {
@@ -49,28 +49,30 @@ func NewOpenStackClient(openStackAdapter OpenStack) (*OpenStackClient, []error) 
 	}
 	client := &OpenStackClient{region: ""}
 	if len(projectName) != 0 {
-		auth, err := openStackAdapter.DoAuthRequest(openstack.AuthOpts{
-			AuthUrl:     hostname,
-			Username:    username,
-			Password:    password,
-			ProjectName: projectName,
-		})
+		authOptions := gophercloud.AuthOptions{
+			IdentityEndpoint: hostname,
+			Username:         username,
+			Password:         password,
+			TenantName:       projectName,
+		}
+		auth, err := openStackAdapter.AuthenticatedClient(authOptions)
 		if err != nil {
 			errorList = append(errorList, err)
 		}
-		client.AuthRef = auth
+		client.ProviderClient = auth
 	}
 	if len(projectId) != 0 {
-		auth, err := openStackAdapter.DoAuthRequest(openstack.AuthOpts{
-			AuthUrl:   hostname,
-			Username:  username,
-			Password:  password,
-			ProjectId: projectId,
-		})
+		authOptions := gophercloud.AuthOptions{
+			IdentityEndpoint: hostname,
+			Username:         username,
+			Password:         password,
+			TenantID:         projectId,
+		}
+		auth, err := openStackAdapter.AuthenticatedClient(authOptions)
 		if err != nil {
 			errorList = append(errorList, err)
 		}
-		client.AuthRef = auth
+		client.ProviderClient = auth
 	}
 	if len(errorList) > 0 {
 		return nil, errorList
@@ -85,4 +87,8 @@ func (o *OpenStackClient) IaaS() string {
 
 func (o *OpenStackClient) Region() string {
 	return o.region
+}
+
+func (o *OpenStackClient) DeleteVMsInVPC(vpcID string) error {
+	return errors.New("not implemented")
 }

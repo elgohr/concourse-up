@@ -4,12 +4,11 @@ import (
 	. "github.com/EngineerBetter/concourse-up/iaas"
 
 	"errors"
-	"git.openstack.org/openstack/golang-client/openstack"
 	"github.com/EngineerBetter/concourse-up/iaas/iaasfakes"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	"github.com/rackspace/gophercloud"
 	"os"
-	"time"
 )
 
 var (
@@ -19,13 +18,6 @@ var (
 	openStackProjectName string
 	openStackProjectID   string
 )
-
-type FakeAuthRef struct{}
-
-func (a *FakeAuthRef) GetToken() string                           { return "" }
-func (a *FakeAuthRef) GetExpiration() time.Time                   { return time.Now() }
-func (a *FakeAuthRef) GetEndpoint(string, string) (string, error) { return "", nil }
-func (a *FakeAuthRef) GetProject() string                         { return "" }
 
 var _ = Describe("OpenstackClient", func() {
 
@@ -45,16 +37,14 @@ var _ = Describe("OpenstackClient", func() {
 
 	Describe("methods", func() {
 		var (
-			fakeAuthRef *FakeAuthRef
-			client      *OpenStackClient
+			client *OpenStackClient
 		)
 		BeforeEach(func() {
 			os.Setenv(OpenStackHostname, "https://host.name")
 			os.Setenv(OpenStackUserName, "User")
 			os.Setenv(OpenStackPassword, "Password")
 			os.Setenv(OpenStackProjectName, "ProjectName")
-			fakeAuthRef = &FakeAuthRef{}
-			openStackAdapterMock.DoAuthRequestReturns(fakeAuthRef, nil)
+			openStackAdapterMock.AuthenticatedClient(gophercloud.AuthOptions{})
 			client, _ = NewOpenStackClient(openStackAdapterMock)
 
 		})
@@ -66,6 +56,11 @@ var _ = Describe("OpenstackClient", func() {
 		Describe("Region", func() {
 			It("returns the configured endpoint", func() {
 				Expect(client.Region()).To(Equal("https://host.name"))
+			})
+		})
+		Describe("DeleteVMsInVPC", func() {
+			It("deletes all machines in a region", func() {
+				Expect(client.DeleteVMsInVPC("ANY")).ShouldNot(HaveOccurred())
 			})
 		})
 	})
@@ -100,58 +95,55 @@ var _ = Describe("OpenstackClient", func() {
 
 		Describe("passes checks", func() {
 			var (
-				fakeAuthRef *FakeAuthRef
+				providerClientMock *gophercloud.ProviderClient
 			)
+
 			BeforeEach(func() {
 				os.Setenv(OpenStackHostname, "https://host.name")
 				os.Setenv(OpenStackUserName, "User")
 				os.Setenv(OpenStackPassword, "Password")
-				fakeAuthRef = &FakeAuthRef{}
-				openStackAdapterMock.DoAuthRequestReturns(fakeAuthRef, nil)
+				providerClientMock = &gophercloud.ProviderClient{}
+				openStackAdapterMock.AuthenticatedClientReturns(providerClientMock, nil)
 			})
 			It("is ok when authentication information are set with project name", func() {
 				os.Setenv(OpenStackProjectName, "ProjectName")
 
 				client, err := NewOpenStackClient(openStackAdapterMock)
 
-				Expect(openStackAdapterMock.DoAuthRequestArgsForCall(0)).To(Equal(
-					openstack.AuthOpts{
-						AuthUrl:     "https://host.name",
-						Username:    "User",
-						Password:    "Password",
-						ProjectName: "ProjectName",
+				Expect(openStackAdapterMock.AuthenticatedClientArgsForCall(0)).To(Equal(
+					gophercloud.AuthOptions{
+						IdentityEndpoint: "https://host.name",
+						Username:         "User",
+						Password:         "Password",
+						TenantName:       "ProjectName",
 					}))
 				Expect(err).Should(BeNil())
 				Expect(client).To(BeAssignableToTypeOf(&OpenStackClient{}))
-				Expect(client.AuthRef).To(Equal(fakeAuthRef))
+				Expect(client.ProviderClient).To(Equal(providerClientMock))
 			})
 			It("is ok when authentication information are set with project id", func() {
 				os.Setenv(OpenStackProjectID, "ProjectId")
 
 				client, err := NewOpenStackClient(openStackAdapterMock)
 
-				Expect(openStackAdapterMock.DoAuthRequestArgsForCall(0)).To(Equal(
-					openstack.AuthOpts{
-						AuthUrl:   "https://host.name",
-						Username:  "User",
-						Password:  "Password",
-						ProjectId: "ProjectId",
+				Expect(openStackAdapterMock.AuthenticatedClientArgsForCall(0)).To(Equal(
+					gophercloud.AuthOptions{
+						IdentityEndpoint: "https://host.name",
+						Username:         "User",
+						Password:         "Password",
+						TenantID:         "ProjectId",
 					}))
 				Expect(err).Should(BeNil())
 				Expect(client).To(BeAssignableToTypeOf(&OpenStackClient{}))
-				Expect(client.AuthRef).To(Equal(fakeAuthRef))
+				Expect(client.ProviderClient).To(Equal(providerClientMock))
 			})
 		})
 		Describe("returns openstack api errors", func() {
-			var (
-				fakeAuthRef *FakeAuthRef
-			)
 			BeforeEach(func() {
 				os.Setenv(OpenStackHostname, "Hostname")
 				os.Setenv(OpenStackUserName, "User")
 				os.Setenv(OpenStackPassword, "Password")
-				fakeAuthRef = &FakeAuthRef{}
-				openStackAdapterMock.DoAuthRequestReturns(nil, errors.New("any error"))
+				openStackAdapterMock.AuthenticatedClientReturns(nil, errors.New("any error"))
 			})
 			It("is ok when authentication information are set with project name", func() {
 				os.Setenv(OpenStackProjectName, "ProjectName")

@@ -4,75 +4,75 @@ package iaasfakes
 import (
 	"sync"
 
-	"git.openstack.org/openstack/golang-client/openstack"
 	"github.com/EngineerBetter/concourse-up/iaas"
+	"github.com/rackspace/gophercloud"
 )
 
 type FakeOpenStack struct {
-	DoAuthRequestStub        func(authopts openstack.AuthOpts) (openstack.AuthRef, error)
-	doAuthRequestMutex       sync.RWMutex
-	doAuthRequestArgsForCall []struct {
-		authopts openstack.AuthOpts
+	AuthenticatedClientStub        func(authopts gophercloud.AuthOptions) (*gophercloud.ProviderClient, error)
+	authenticatedClientMutex       sync.RWMutex
+	authenticatedClientArgsForCall []struct {
+		authopts gophercloud.AuthOptions
 	}
-	doAuthRequestReturns struct {
-		result1 openstack.AuthRef
+	authenticatedClientReturns struct {
+		result1 *gophercloud.ProviderClient
 		result2 error
 	}
-	doAuthRequestReturnsOnCall map[int]struct {
-		result1 openstack.AuthRef
+	authenticatedClientReturnsOnCall map[int]struct {
+		result1 *gophercloud.ProviderClient
 		result2 error
 	}
 	invocations      map[string][][]interface{}
 	invocationsMutex sync.RWMutex
 }
 
-func (fake *FakeOpenStack) DoAuthRequest(authopts openstack.AuthOpts) (openstack.AuthRef, error) {
-	fake.doAuthRequestMutex.Lock()
-	ret, specificReturn := fake.doAuthRequestReturnsOnCall[len(fake.doAuthRequestArgsForCall)]
-	fake.doAuthRequestArgsForCall = append(fake.doAuthRequestArgsForCall, struct {
-		authopts openstack.AuthOpts
+func (fake *FakeOpenStack) AuthenticatedClient(authopts gophercloud.AuthOptions) (*gophercloud.ProviderClient, error) {
+	fake.authenticatedClientMutex.Lock()
+	ret, specificReturn := fake.authenticatedClientReturnsOnCall[len(fake.authenticatedClientArgsForCall)]
+	fake.authenticatedClientArgsForCall = append(fake.authenticatedClientArgsForCall, struct {
+		authopts gophercloud.AuthOptions
 	}{authopts})
-	fake.recordInvocation("DoAuthRequest", []interface{}{authopts})
-	fake.doAuthRequestMutex.Unlock()
-	if fake.DoAuthRequestStub != nil {
-		return fake.DoAuthRequestStub(authopts)
+	fake.recordInvocation("AuthenticatedClient", []interface{}{authopts})
+	fake.authenticatedClientMutex.Unlock()
+	if fake.AuthenticatedClientStub != nil {
+		return fake.AuthenticatedClientStub(authopts)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	return fake.doAuthRequestReturns.result1, fake.doAuthRequestReturns.result2
+	return fake.authenticatedClientReturns.result1, fake.authenticatedClientReturns.result2
 }
 
-func (fake *FakeOpenStack) DoAuthRequestCallCount() int {
-	fake.doAuthRequestMutex.RLock()
-	defer fake.doAuthRequestMutex.RUnlock()
-	return len(fake.doAuthRequestArgsForCall)
+func (fake *FakeOpenStack) AuthenticatedClientCallCount() int {
+	fake.authenticatedClientMutex.RLock()
+	defer fake.authenticatedClientMutex.RUnlock()
+	return len(fake.authenticatedClientArgsForCall)
 }
 
-func (fake *FakeOpenStack) DoAuthRequestArgsForCall(i int) openstack.AuthOpts {
-	fake.doAuthRequestMutex.RLock()
-	defer fake.doAuthRequestMutex.RUnlock()
-	return fake.doAuthRequestArgsForCall[i].authopts
+func (fake *FakeOpenStack) AuthenticatedClientArgsForCall(i int) gophercloud.AuthOptions {
+	fake.authenticatedClientMutex.RLock()
+	defer fake.authenticatedClientMutex.RUnlock()
+	return fake.authenticatedClientArgsForCall[i].authopts
 }
 
-func (fake *FakeOpenStack) DoAuthRequestReturns(result1 openstack.AuthRef, result2 error) {
-	fake.DoAuthRequestStub = nil
-	fake.doAuthRequestReturns = struct {
-		result1 openstack.AuthRef
+func (fake *FakeOpenStack) AuthenticatedClientReturns(result1 *gophercloud.ProviderClient, result2 error) {
+	fake.AuthenticatedClientStub = nil
+	fake.authenticatedClientReturns = struct {
+		result1 *gophercloud.ProviderClient
 		result2 error
 	}{result1, result2}
 }
 
-func (fake *FakeOpenStack) DoAuthRequestReturnsOnCall(i int, result1 openstack.AuthRef, result2 error) {
-	fake.DoAuthRequestStub = nil
-	if fake.doAuthRequestReturnsOnCall == nil {
-		fake.doAuthRequestReturnsOnCall = make(map[int]struct {
-			result1 openstack.AuthRef
+func (fake *FakeOpenStack) AuthenticatedClientReturnsOnCall(i int, result1 *gophercloud.ProviderClient, result2 error) {
+	fake.AuthenticatedClientStub = nil
+	if fake.authenticatedClientReturnsOnCall == nil {
+		fake.authenticatedClientReturnsOnCall = make(map[int]struct {
+			result1 *gophercloud.ProviderClient
 			result2 error
 		})
 	}
-	fake.doAuthRequestReturnsOnCall[i] = struct {
-		result1 openstack.AuthRef
+	fake.authenticatedClientReturnsOnCall[i] = struct {
+		result1 *gophercloud.ProviderClient
 		result2 error
 	}{result1, result2}
 }
@@ -80,8 +80,8 @@ func (fake *FakeOpenStack) DoAuthRequestReturnsOnCall(i int, result1 openstack.A
 func (fake *FakeOpenStack) Invocations() map[string][][]interface{} {
 	fake.invocationsMutex.RLock()
 	defer fake.invocationsMutex.RUnlock()
-	fake.doAuthRequestMutex.RLock()
-	defer fake.doAuthRequestMutex.RUnlock()
+	fake.authenticatedClientMutex.RLock()
+	defer fake.authenticatedClientMutex.RUnlock()
 	copiedInvocations := map[string][][]interface{}{}
 	for key, value := range fake.invocations {
 		copiedInvocations[key] = value
