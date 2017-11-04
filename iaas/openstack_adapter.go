@@ -8,6 +8,8 @@ import (
 //go:generate counterfeiter . OpenStack
 type OpenStack interface {
 	AuthenticatedClient(authopts gophercloud.AuthOptions) (*gophercloud.ProviderClient, error)
+
+	NewComputeV2(client *gophercloud.ProviderClient, eo gophercloud.EndpointOpts) (*gophercloud.ServiceClient, error)
 }
 
 // This struct only exists to wrap static method-calls from OpenStack-Api
@@ -17,4 +19,8 @@ type OpenStackAdapter struct {
 
 func (oa *OpenStackAdapter) AuthenticatedClient(authopts gophercloud.AuthOptions) (*gophercloud.ProviderClient, error) {
 	return openstack.AuthenticatedClient(authopts)
+}
+
+func (oa *OpenStackAdapter) NewComputeV2(client *gophercloud.ProviderClient, eo gophercloud.EndpointOpts) (*gophercloud.ServiceClient, error) {
+	return openstack.NewComputeV2(client, eo)
 }

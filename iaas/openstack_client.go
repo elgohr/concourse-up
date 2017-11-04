@@ -15,12 +15,13 @@ const (
 )
 
 type OpenStackClient struct {
-	ProviderClient *gophercloud.ProviderClient
-	region         string
+	provider      *gophercloud.ProviderClient
+	ComputeClient *gophercloud.ServiceClient
+	region        string
 }
 
 func NewOpenStackClient(openStackAdapter OpenStack) (*OpenStackClient, []error) {
-	errorList := []error{}
+	var errorList []error
 	hostname := os.Getenv(OpenStackHostname)
 	username := os.Getenv(OpenStackUserName)
 	password := os.Getenv(OpenStackPassword)
@@ -55,11 +56,16 @@ func NewOpenStackClient(openStackAdapter OpenStack) (*OpenStackClient, []error) 
 			Password:         password,
 			TenantName:       projectName,
 		}
-		auth, err := openStackAdapter.AuthenticatedClient(authOptions)
+		provider, err := openStackAdapter.AuthenticatedClient(authOptions)
 		if err != nil {
 			errorList = append(errorList, err)
 		}
-		client.ProviderClient = auth
+		client.ComputeClient, err = openStackAdapter.NewComputeV2(provider, gophercloud.EndpointOpts{
+			Region: "",
+		})
+		if err != nil {
+			errorList = append(errorList, err)
+		}
 	}
 	if len(projectId) != 0 {
 		authOptions := gophercloud.AuthOptions{
@@ -68,11 +74,13 @@ func NewOpenStackClient(openStackAdapter OpenStack) (*OpenStackClient, []error) 
 			Password:         password,
 			TenantID:         projectId,
 		}
-		auth, err := openStackAdapter.AuthenticatedClient(authOptions)
+		provider, err := openStackAdapter.AuthenticatedClient(authOptions)
 		if err != nil {
 			errorList = append(errorList, err)
 		}
-		client.ProviderClient = auth
+		client.ComputeClient, err = openStackAdapter.NewComputeV2(provider, gophercloud.EndpointOpts{
+			Region: "",
+		})
 	}
 	if len(errorList) > 0 {
 		return nil, errorList
